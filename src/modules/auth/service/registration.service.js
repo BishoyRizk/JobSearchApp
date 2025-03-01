@@ -184,6 +184,10 @@ export const login = asyncHandler(
             return next (new Error('confirmFirst',{cause:404}))
         }
 
+        if (user && user.isDeleted || user.isBanned) {
+            return next (new Error('your account is not active',{cause:400}))
+        }
+
         if (!compareHash({plainText:password,hashValue:user.password})) {
             return next (new Error('user does not exist ',{cause:404}))
         }
