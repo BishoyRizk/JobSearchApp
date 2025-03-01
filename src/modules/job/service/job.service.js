@@ -104,25 +104,35 @@ export const deleteJob = asyncHandler(
             return next (new Error ('in-valid companyId',{cause:404}))
         }
 
+       
         
         
 
-        if ( !company.HR.includes(req.user._id.toString()) ) {
+        if ( !company.HR.includes(req.user._id) ) {
             return next (new Error ('only HR can do this',{cause:404}))
             
         }
 
-        const deleted = await dbService.findOneAndDelete({
+        
+        
+
+        const deleted = await dbService.findOneAndUpdate({
             model:jobModel,
             filter:{
                 companyId,
-                _id:jobId
-
+                _id:jobId,
+                closed:false
+            },data:{
+                closed:true
+            },options:{
+                new:true
             }
         })
 
+        
+
         if (!deleted) {
-            return next (new Error ('in-valid jobId'))
+            return next (new Error ('in-valid jobId',{cause:404}))
         }
         
 
@@ -160,7 +170,7 @@ export const getAllJobsOrSpecific = asyncHandler(
     
     const jobs = await dbService.findAll({
       model: jobModel,
-      filter: jobId ? { companyId: company._id.toString(), _id: jobId.toString() , closed:false } : { companyId: company._id.toString() ,closed:false },
+      filter: jobId ? { companyId: company._id, _id: jobId , closed:false } : { companyId: company._id  ,closed:false },
       skip,
       limit: parseInt(limit),
       sort
