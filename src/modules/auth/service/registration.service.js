@@ -230,6 +230,7 @@ export const refreshToken = asyncHandler(
 export const signupGoogle = asyncHandler(
     async(req,res,next)=>{
         const {idToken} = req.body
+        console.log(idToken);
         
         
         const client = new OAuth2Client()
@@ -310,6 +311,7 @@ export const loginGoogle = asyncHandler(
             }
         })
 
+
        
         
 
@@ -318,7 +320,9 @@ export const loginGoogle = asyncHandler(
             
         }
 
-       
+          if (user && user.isDeleted || user.isBanned) {
+            return next (new Error('your account is not active',{cause:400}))
+        }
 
         const accessToken= generateToken({payLoad:{id:user._id},expiresIn:'1h'})
         const refreshToken =generateToken({payLoad:{id:user._id},expiresIn:'7d'})
